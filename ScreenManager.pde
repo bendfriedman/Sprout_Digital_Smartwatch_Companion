@@ -1,6 +1,7 @@
 class ScreenManager {
   HashMap<String, Screen> screens = new HashMap<>();
   Screen currentScreen;
+  String currentName = "";
 
   void registerScreen(String name, Screen s) {
     screens.put(name, s);
@@ -10,6 +11,7 @@ class ScreenManager {
     Screen next = screens.get(name);
     if (next != null) {
       currentScreen = next;
+      currentName = name;
       currentScreen.onEnter();
     }
   }
@@ -24,6 +26,14 @@ class ScreenManager {
   void handleTouch(int x, int y) {
     if (currentScreen != null) {
       currentScreen.handleTouch(x, y);
+    }
+  }
+
+  void onSwipeRight() {
+    if (currentName.equals("streak")) {
+      switchTo("progress");
+    } else if (!currentName.equals("hub")) {
+      switchTo("hub");
     }
   }
 }

@@ -1,16 +1,17 @@
 class Screen_Hub extends Screen {
 
   PImage[] icons = new PImage[4];
-  String[] targetScreens = {"companion", "goals", "add", "stats"}; // ziel-screen je tile
+  String[] targetScreens = {"sprout", "goals", "log_menu", "progress"}; // ziel-screen je tile
 
-  int cols = 2, rows = 2;
-  int margin = 16;
-  int gap = 5;
+  final int cols = 2, rows = 2;
+  final int tileMargin = SCREEN_PADDING;
+  final int gap = 5;
+  final int iconPadding = 12;
+
   float tileW, tileH;
   float[] tileX = new float[4];
   float[] tileY = new float[4];
-  int iconPadding = 12;
-
+  Rect[] tiles = new Rect[4];
 
   Screen_Hub() {
     icons[0] = loadImage("images/Sprout_head.jpg");
@@ -18,31 +19,35 @@ class Screen_Hub extends Screen {
     icons[2] = loadImage("images/plus-sign.jpg");
     icons[3] = loadImage("images/arrow-up.jpg");
 
-    tileW = (width  - 2*margin - gap) / (float)cols;
-    tileH = (height - 2*margin - gap) / (float)rows;
+    tileW = (width  - 2 * tileMargin - gap) / (float)cols;
+    tileH = (height - 2 * tileMargin - gap) / (float)rows;
+
+    for (int i = 0; i < 4; i++) {
+      float tx = tileMargin + (i % 2) * (tileW + gap);
+      float ty = tileMargin + (i / 2) * (tileH + gap);
+      tiles[i] = new Rect(tx, ty, tileW, tileH);
+    }
   }
 
   void draw() {
 
     for (int i = 0; i < 4; i++) {
-      tileX[i] = margin + (i % 2) * (tileW + gap);
-      tileY[i] = margin + (int) (i / 2) * (tileH + gap);
       stroke(ACCENT);
       strokeWeight(STROKE_WEIGHT);
-      rect(tileX[i], tileY[i], tileW, tileH, BORDER_RADIUS);
+      rect(tiles[i].x, tiles[i].y, tiles[i].w, tiles[i].h, BORDER_RADIUS);
 
-      // quadratisches icon in der tile zentriert
-      float iconSize = min(tileW, tileH) - 2 * iconPadding;
+      // quadratisches icon zentriert in der tile
+      float iconSize = min(tiles[i].w, tiles[i].h) - 2 * iconPadding;
       image(icons[i],
-        tileX[i] + iconPadding,
-        tileY[i] + (tileH - iconSize)/2,
+        tiles[i].x + iconPadding,
+        tiles[i].y + (tiles[i].h - iconSize)/2,
         iconSize, iconSize);
     }
   };
 
   void handleTouch(int x, int y) {
     for (int i = 0; i < 4; i++) {
-      if (x >= tileX[i] && x <= tileX[i] + tileW && y >= tileY[i] && y <= tileY[i] + tileH) {
+      if (hitRect(x, y, tiles[i])) {
         manager.switchTo(targetScreens[i]);
         return;
       }
