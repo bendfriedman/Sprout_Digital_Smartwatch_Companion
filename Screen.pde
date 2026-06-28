@@ -19,6 +19,9 @@ abstract class Screen {
   void onSwipeLeft() {
   }
 
+  void onSpeech(String s) {
+  }
+
   void drawPageDots(int active, int total) {
     float radius = 5;
     float spacing = 18;

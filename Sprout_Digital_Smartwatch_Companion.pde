@@ -4,16 +4,20 @@ import ddf.minim.effects.*;
 import ddf.minim.signals.*;
 import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
+import simpleSpeech.*;
 
 
 ScreenManager manager;
 Minim minim;
+Listen listener;
 
 int pressX, pressY;
+int stepGoal = 10000;
 
 void setup() {
   size(312, 390); // Apple Watch Series 1 dimensions: 312 px * 390 px
   minim = new Minim(this);
+  listener = new Listen(this, "\\sample.config.xml");
 
   manager = new ScreenManager();
   manager.registerScreen("hub", new Screen_Hub());
@@ -49,5 +53,13 @@ void mouseReleased() {
   }
   if (abs(diffX) < 12 && abs(diffY) < 12) { // tap
     manager.handleTouch(mouseX, mouseY);
+  }
+}
+
+void listenEvent(Listen l) {
+  String s = l.readString();
+  if (s != null) {
+    println("heard: " + s); // erkanntes Wort in die Console
+    manager.currentScreen.onSpeech(s);
   }
 }

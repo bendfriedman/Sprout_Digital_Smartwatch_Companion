@@ -32,6 +32,7 @@ class Screen_Hub extends Screen {
   void draw() {
 
     for (int i = 0; i < 4; i++) {
+      fill(BG);
       stroke(ACCENT);
       strokeWeight(STROKE_WEIGHT);
       rect(tiles[i].x, tiles[i].y, tiles[i].w, tiles[i].h, BORDER_RADIUS);

@@ -10,31 +10,40 @@ A smartwatch app built in **Processing** featuring **Sprout**, a digital plant�
 
 Sprout is a small plant creature living on your wrist. It can't take care of itself — it depends on *you*. Move and it grows; eat well and it flourishes; neglect it and it wilts. Because Sprout is literally a plant, the metaphor is self‑explanatory: a plant thrives on activity and good nutrition, exactly the behaviour the app encourages. No tutorial required — the interaction explains itself.
 
-The standout mechanic is a **"Days without meat"** streak: every meat‑free day grows the streak and visibly strengthens Sprout, turning the abstract goal of "eat more vegetables, less meat" into a tangible, rewarding ritual.
+A standout mechanic is a **"Days without meat"** streak: every meat‑free day grows the streak and visibly strengthens Sprout, turning the abstract goal of "eat more vegetables, less meat" into a tangible, rewarding ritual.
 
 ---
 
 ## Features
 
-Ten functions, covering all three required behaviour areas (the brief asks for a minimum of eight):
+Functions covering all three required behaviour areas (the brief asks for a minimum of eight):
 
 ### 🏃 Movement
-- **Set step goal** — define a daily step target.
-- **Log workout** — start/stop a workout via gesture with a live timer.
-- **Live vital updates** — automatic heart‑rate alert during a workout ("Take a break — your pulse: 135 bpm").
-- **View progress history** — daily rings and bars for exercise, hydration, and sleep.
+- **Set step goal by voice** — speak your target ("ten thousand") on the Goals screen; recognised offline and applied instantly.
+- **Workout logging** — log exercise from the log menu.
+- **Progress overview** — daily rings/bars for exercise, hydration, and sleep, with paged navigation to the streak view.
 
 ### 🥦 Nutrition coach
-- **Set nutrition goal** — define an eating target (e.g. meat‑free days per week).
-- **Set hydration goal** — define a daily water target.
-- **Log meal** — quick meal check‑in (meat‑free / vegetarian) that feeds the streak.
+- **Log meal** — quick meal/veggie check‑in feeding the meat‑free streak.
+- **Log hydration** — water tracking.
+- **"Days without meat" streak** — coaching loop that grows Sprout.
 
 ### 🌟 Responsibility trainer
-- **Log mood** — touch‑based daily check‑in (traffic‑light: good / okay / low).
-- **Log sleep** — gesture‑based sleep logging (bed → wake time).
-- **View streak** — the "Days without meat" streak and Sprout's growth state; feeding and caring for the companion.
+- **Feed / water Sprout** — tap the watering can; Sprout reacts (sad → happy) with an animated rain effect and a water sound.
+- **Log sleep** — sleep check‑in.
+- **View streak** — Sprout's growth state and the meat‑free streak.
 
-Every action gives immediate **feedback** — a button sound, a success cue, and a reaction from Sprout — so the user always knows an action registered (see `data/sounds/`).
+Every action gives immediate **feedback** — button/water sounds, on‑screen reaction from Sprout, and (via FreeTTS) the option for Sprout to speak.
+
+---
+
+## Input modalities
+
+The app deliberately uses three input styles suited to a small touchscreen:
+
+- **Touch** — hand‑built tiles and buttons with rectangle hit‑testing.
+- **Voice** — offline speech recognition (CMUSphinx) for setting the step goal, with a small fixed grammar.
+- **Swipe** — right‑swipe to go back to the hub, left‑swipe to page forward (e.g. Progress → Streak); a visible back/forward arrow mirrors each gesture for discoverability.
 
 ---
 
@@ -43,10 +52,9 @@ Every action gives immediate **feedback** — a button sound, a success cue, and
 - **Engine:** [Processing](https://processing.org/) (Java mode)
 - **Target device:** Apple Watch Series 1 dimensions — **312 × 390 px**
 - **Allowed libraries only:** `minim`, `SimpleSpeech`, `FreeTTS`, `CMUSphinx`
-  - `minim` — audio playback for button/success sounds and microphone level.
-  - `FreeTTS` / `SimpleSpeech` — text‑to‑speech (Sprout can speak).
-  - `CMUSphinx` — offline speech recognition for voice check‑ins (small `yes`/`no` vocabulary).
-- **Hand‑built UI:** all interface elements (buttons, sliders, tiles) are coded from scratch. **No external UI frameworks** are used — this is a hard requirement of the assignment.
+  - `minim` — sound playback for button/water feedback and microphone level (live waveform).
+  - **`SimpleSpeech`** — a Processing wrapper that bundles **FreeTTS** (speech synthesis — Sprout can speak) and **CMUSphinx** (offline speech recognition — voice goal setting). This single library covers three of the four allowed libs.
+- **Hand‑built UI:** all interface elements (tiles, buttons, arrows, page dots) are coded from scratch. **No external UI frameworks** — a hard requirement of the assignment.
 
 ---
 
@@ -55,22 +63,37 @@ Every action gives immediate **feedback** — a button sound, a success cue, and
 The app is built around a lightweight **screen state machine**, so each function is an isolated, self‑contained screen and `draw()` stays trivial.
 
 ```
-mousePressed() ─▶ ScreenManager ─▶ currentScreen.handleTouch(x, y)
-                                      └▶ updates data + plays sound + may switchTo()
-draw()         ─▶ ScreenManager ─▶ currentScreen.update() + .display()
+mousePressed/Released ─▶ tap / swipe detection ─▶ ScreenManager ─▶ currentScreen
+                                                     ├─ handleTouch(x, y)   → switchTo(...) / actions
+                                                     └─ onSwipeLeft / goBack → navigation
+draw()                ─▶ ScreenManager ─▶ currentScreen.update() + .draw()
+listenEvent()         ─▶ currentScreen.onSpeech(recognisedText)
 ```
 
 **Core classes**
 
-| Class | Responsibility |
-|-------|----------------|
-| `ScreenManager` | Holds all screens, tracks `currentScreen`, switches between them (`registerScreen`, `switchTo`, `render`). |
-| `Screen` (abstract) | Base for every screen: `display()`, `handleTouch()`, `update()`, `onEnter()`. |
-| `HubScreen`, `WorkoutScreen`, … | One concrete screen per function; each owns its own UI elements. |
+| File | Responsibility |
+|------|----------------|
+| `ScreenManager` | Holds all screens, tracks `currentScreen` / `currentName`, switches between them (`registerScreen`, `switchTo`, `render`, `goBack`, `onSwipeRight`). |
+| `Screen` (abstract) | Base for every screen: `draw()`, `handleTouch()`, `update()`, `onEnter()`, plus shared concrete helpers — `drawBackButton()`/`backPressed()`, `drawPageDots()`, and empty hooks `onSpeech()` / `onSwipeLeft()` that individual screens override. |
+| `Rect` | Tiny value type bundling a region's `x, y, w, h` — one source of truth for drawing **and** hit‑testing. |
+| `Utils` | Global helpers: `hitRect(...)` (point‑in‑rectangle) and `drawFitted(img, rect)` (draw an image into a box, centred, without distortion). |
+| `Theme` | Global colour & layout constants (`ACCENT`, `BG`, `TEXT`, `BORDER_RADIUS`, `SCREEN_PADDING`, `BACK_BOX`, …). |
+| `Screen_*` | One concrete screen per function (see below). |
 
-Adding a feature = one new `Screen` subclass + one `registerScreen(...)` line. The scaffold itself is never touched again.
+Naming convention: screen classes are prefixed `Screen_` (one `.pde` tab each). Processing only compiles `.pde` files in the sketch root, so subfolders aren't used.
 
-Planned supporting classes as the build grows: a self‑coded `UIElement`/`Button` hierarchy, a `Sprout` companion class (state + animation), an `AppState` data model (separating data from rendering), a central `Theme` for colours and touch‑target sizes, and a `SoundManager` wrapping `minim`.
+Adding a feature = one new `Screen` subclass + one `registerScreen(...)` line.
+
+**Screens**
+
+- `Screen_Hub` — central 2×2 navigation tiles (companion, goals, log menu, progress).
+- `Screen_Sprout` — the companion; watering can + animated rain + Sprout reaction, water sound.
+- `Screen_Goals` — set the step goal by voice (mic + waveform + spoken prompt).
+- `Screen_LogMenu` — 2×2 menu to the individual loggers.
+- `Screen_LogExercise` / `Screen_LogFood` / `Screen_LogSleep` / `Screen_LogHydration` — individual logging screens.
+- `Screen_Progress` — daily progress overview with page dots.
+- `Screen_Streak` — the "Days without meat" streak with page dots.
 
 ---
 
@@ -78,52 +101,74 @@ Planned supporting classes as the build grows: a self‑coded `UIElement`/`Butto
 
 ```
 Sprout_Digital_Smartwatch_Companion/
-├── Sprout_Digital_Smartwatch_Companion.pde   # main tab: setup(), draw(), mousePressed()
-├── Screen.pde                                # abstract screen base
-├── ScreenManager.pde                         # screen state machine
-├── HubScreen.pde                             # central 4‑tile navigation hub
-├── data/
-│   ├── images/                               # sprites and icons
-│   └── sounds/                               # feedback & narration audio
-└── readme.md
+├── Sprout_Digital_Smartwatch_Companion.pde   # main tab: setup(), draw(), tap/swipe + listenEvent()
+├── Screen.pde                                # abstract screen base + shared UI helpers
+├── ScreenManager.pde                         # screen state machine + navigation
+├── Rect.pde                                  # x/y/w/h value type
+├── Utils.pde                                 # hitRect(), drawFitted()
+├── Theme.pde                                 # global colour & layout constants
+├── Screen_Hub.pde                            # 2×2 navigation hub
+├── Screen_Sprout.pde                         # companion / watering screen
+├── Screen_Goals.pde                          # voice step‑goal screen
+├── Screen_LogMenu.pde                        # logging sub‑menu
+├── Screen_LogExercise.pde / _LogFood.pde / _LogSleep.pde / _LogHydration.pde
+├── Screen_Progress.pde                       # progress overview
+├── Screen_Streak.pde                         # meat‑free streak
+└── data/
+    ├── images/                               # icons + Sprout sprites (head, happy, sad, content, …)
+    ├── sounds/                               # feedback & narration audio (incl. water‑bubbles.mp3)
+    ├── sample.config.xml                     # CMUSphinx recogniser configuration
+    └── sample.gram                           # JSGF grammar (step‑goal phrases)
 ```
 
 > In Processing, each `.pde` file is a separate tab and all tabs compile together as one sketch.
+
+### Build status
+
+Core scaffold and navigation complete — screen state machine, theme constants, `Rect`/`Utils` helpers, the 2×2 hub, the companion watering animation, voice‑driven goal setting (CMUSphinx via SimpleSpeech), the log menu, and the progress/streak paging all working. The individual log screens are being filled in.
+
+---
+
+## Voice recognition setup
+
+Speech recognition runs **offline** through CMUSphinx (wrapped by SimpleSpeech):
+
+1. Install the **SimpleSpeech** library into your Processing `libraries/` folder (alongside `minim`).
+2. `data/sample.gram` holds the JSGF grammar — a small fixed vocabulary of step‑goal phrases (`five … twenty` + `thousand`). Small vocabularies are far more reliable with Sphinx.
+3. `data/sample.config.xml` configures the recogniser. **Its `grammarLocation` must point (absolute `file:///` path) at this sketch's `data` folder** — the most common setup pitfall.
+
+On the Goals screen, say e.g. *"ten thousand"*; recognised words print to the console (`heard: …`) and set the step goal.
 
 ---
 
 ## Getting started
 
 1. Install [Processing](https://processing.org/download).
-2. Install the required libraries (`minim` via *Sketch → Import Library → Add Library*; `SimpleSpeech` / `FreeTTS` / `CMUSphinx` into your Processing `libraries/` folder).
+2. Install the required libraries (`minim` and `SimpleSpeech`) into your Processing `libraries/` folder.
 3. Clone this repository:
    ```bash
    git clone git@github.com:bendfriedman/HCI---Digital-Smartwatch-Companion.git
    ```
-4. Open `Sprout_Digital_Smartwatch_Companion.pde` in Processing and press **Run** (▶).
-
-The sketch window opens at 312 × 390 px, simulating the watch face. Interact with the mouse as you would with touch.
+4. Open `Sprout_Digital_Smartwatch_Companion.pde` and press **Run** (▶). The window opens at 312 × 390 px; interact with the mouse as you would with touch.
 
 ---
 
 ## HCI design rationale
 
-The design is grounded in established usability principles — useful both as a design guide and for the project writeup.
+The design is grounded in established usability principles.
 
-**Gestalt laws.** The 4‑tile hub uses *proximity* and *common region* to group related actions; consistent shapes, colours, and the recurring green frame use *similarity* so the interface reads as one coherent system; progress rings and the weekday streak row rely on *continuity* to convey ongoing state.
+**Gestalt laws.** The 2×2 hub uses *proximity* and *common region* to group related actions; a consistent green frame, shared tile shapes, and recurring page dots use *similarity* and *continuity* so the interface reads as one coherent system.
 
-**Fitts's law.** Touch targets are large and placed toward screen edges/corners to minimise acquisition time on a small display. Minimum target sizes live in one central `Theme` definition for consistency.
+**Fitts's law.** Touch targets are large and placed toward screen edges/corners; minimum sizes and padding live centrally in `Theme`.
 
-**Hicks's law.** Each screen offers few, clearly distinct choices (e.g. the meal check‑in is a small set of options, not free text), keeping decision time low — essential on a watch‑sized screen.
+**Hicks's law.** Each screen offers few, clearly distinct choices (e.g. a small set of step‑goal phrases, not free text), keeping decision time low on a watch‑sized screen.
 
 **Nielsen's 5 usability components.**
 - *Learnability* — the plant metaphor and icon‑first layout are self‑explanatory; no tutorial needed.
-- *Efficiency* — common logs are one or two taps; gesture and voice shortcuts speed frequent actions.
+- *Efficiency* — common actions are one tap; swipe and voice act as accelerators.
 - *Memorability* — a consistent hub‑and‑spoke structure and shared visual language make the app easy to return to.
-- *Errors* — confirmation steps and a touch fallback for voice input prevent and recover from mistakes.
+- *Errors* — a visible back/forward arrow accompanies every gesture, and explicit colour/state resets prevent leftover‑state glitches.
 - *Satisfaction* — Sprout's reactions, growth, and streaks make healthy behaviour rewarding.
-
-**Multimodal input.** The app deliberately demonstrates three input modalities suited to a small touchscreen: **touch** (mood, water), **gesture** (workout, sleep), and **voice** (Sprout check‑ins via CMUSphinx) — each chosen to fit its task.
 
 ---
 

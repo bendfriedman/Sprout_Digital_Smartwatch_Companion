@@ -1,6 +1,7 @@
 class Screen_Sprout extends Screen {
 
   AudioPlayer waterSound;
+  AudioPlayer nextHappinesLevelSound;
 
   PImage sprout_sad;
   PImage sprout_content;
@@ -31,7 +32,8 @@ class Screen_Sprout extends Screen {
     sproutBox = new Rect(padding, padding, width - 2 * padding, splitY - padding);
     canBox = new Rect(padding, splitY, width - 2 * padding, height - splitY - padding);
 
-    waterSound = minim.loadFile("/sounds/01_set_step_goal.mp3");
+    waterSound = minim.loadFile("sounds/water-bubbles.mp3");
+    nextHappinesLevelSound = minim.loadFile("sounds/09_view_prgress_history.mp3");
   }
 
   void startWatering() {
@@ -85,6 +87,8 @@ class Screen_Sprout extends Screen {
       } else if (waterCount == 2) {
         sprout = sprout_happy;
       }
+      nextHappinesLevelSound.rewind();
+      nextHappinesLevelSound.play();
     }
   }
 
