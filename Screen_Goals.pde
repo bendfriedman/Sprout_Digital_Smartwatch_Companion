@@ -39,7 +39,7 @@ class Screen_Goals extends Screen {
 
   void handleTouch(int x, int y) {
     if (backPressed(x, y)) {
-      manager.switchTo("hub");
+      manager.goBack();
       return;
     }
   }

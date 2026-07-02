@@ -1,7 +1,7 @@
 class Screen_Hub extends Screen {
 
   PImage[] icons = new PImage[4];
-  String[] targetScreens = {"sprout", "goals", "log_menu", "progress"}; // ziel-screen je tile
+  String[] targetScreens = {"sprout", "goals", "logMenu", "progress"}; // ziel-screen je tile
 
   final int cols = 2, rows = 2;
   final int tileMargin = SCREEN_PADDING;

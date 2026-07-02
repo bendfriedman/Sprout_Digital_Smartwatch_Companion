@@ -35,7 +35,7 @@ class Screen_LogMenu extends Screen {
 
   void handleTouch(int x, int y) {
     if (backPressed(x, y)) {
-      manager.switchTo("hub");
+      manager.goBack();
       return;
     }
     for (int i = 0; i < 4; i++) {

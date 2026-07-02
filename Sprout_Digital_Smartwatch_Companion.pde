@@ -13,6 +13,7 @@ Listen listener;
 
 int pressX, pressY;
 int stepGoal = 10000;
+int hydrationMl = 1500;
 
 void setup() {
   size(312, 390); // Apple Watch Series 1 dimensions: 312 px * 390 px
@@ -23,9 +24,13 @@ void setup() {
   manager.registerScreen("hub", new Screen_Hub());
   manager.registerScreen("sprout", new Screen_Sprout());
   manager.registerScreen("goals", new Screen_Goals());
-  manager.registerScreen("log_menu", new Screen_LogMenu());
+  manager.registerScreen("logMenu", new Screen_LogMenu());
   manager.registerScreen("progress", new Screen_Progress());
   manager.registerScreen("streak", new Screen_Streak());
+  manager.registerScreen("logHydration", new Screen_LogHydration());
+  manager.registerScreen("logSleep", new Screen_LogSleep());
+  manager.registerScreen("logExercise", new Screen_LogExercise());
+  manager.registerScreen("logFood", new Screen_LogFood());
   manager.switchTo("hub");
 }
 
@@ -58,7 +63,7 @@ void mouseReleased() {
 
 void listenEvent(Listen l) {
   String s = l.readString();
-  if (s != null) {
+  if (s != null  && manager.currentName.equals("goals")) {
     println("heard: " + s); // erkanntes Wort in die Console
     manager.currentScreen.onSpeech(s);
   }

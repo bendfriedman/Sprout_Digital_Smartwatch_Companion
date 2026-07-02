@@ -67,7 +67,7 @@ class Screen_Sprout extends Screen {
 
   void handleTouch(int x, int y) {
     if (backPressed(x, y)) {
-      manager.switchTo("hub");
+      manager.goBack();
       return;
     }
     // tapped wateringCan

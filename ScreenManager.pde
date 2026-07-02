@@ -29,11 +29,18 @@ class ScreenManager {
     }
   }
 
-  void onSwipeRight() {
+  void goBack() {
     if (currentName.equals("streak")) {
       switchTo("progress");
+    } else if (currentName.equals("logHydration") || currentName.equals("logSleep")
+      || currentName.equals("logExercise")  || currentName.equals("logFood")) {
+      switchTo("logMenu");
     } else if (!currentName.equals("hub")) {
       switchTo("hub");
     }
+  }
+
+  void onSwipeRight() {
+    goBack();
   }
 }

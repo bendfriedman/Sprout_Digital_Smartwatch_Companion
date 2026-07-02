@@ -27,7 +27,7 @@ class Screen_Progress extends Screen {
 
   void handleTouch(int x, int y) {
     if (backPressed(x, y)) {
-      manager.switchTo("hub");
+      manager.goBack();
       return;
     }
     if (hitRect(x, y, forwardBox)) {
