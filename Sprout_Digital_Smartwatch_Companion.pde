@@ -13,7 +13,16 @@ Listen listener;
 
 int pressX, pressY;
 int stepGoal = 10000;
-int hydrationMl = 1500;
+
+// --- progress values (current) + goals for the status bars ---
+int hydrationMl = 1500;      // current hydration (also set on Log Hydration screen)
+int hydrationGoalMl = 3000;  // daily hydration goal
+
+int exerciseMin = 5;         // current exercise minutes
+int exerciseGoalMin = 30;    // daily exercise goal
+
+float sleepHours = 7.2;      // last night's sleep
+float sleepGoalHours = 8.0;  // sleep goal
 
 void setup() {
   size(312, 390); // Apple Watch Series 1 dimensions: 312 px * 390 px
