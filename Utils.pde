@@ -15,6 +15,7 @@ boolean hitRect(int px, int py, Rect r) {
 
 void drawFitted(PImage img, Rect r) {
   float scale = min(r.w / img.width, r.h / img.height);
-  float w = img.width * scale, h = img.height * scale;
+  float w = img.width * scale;
+  float h = img.height * scale;
   image(img, r.x + (r.w - w)/2, r.y + (r.h - h)/2, w, h);
 }
