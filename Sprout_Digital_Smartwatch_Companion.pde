@@ -14,18 +14,18 @@ Listen listener;
 int pressX, pressY;
 int stepGoal = 10000;
 
-// --- progress values (current) + goals for the status bars ---
-int hydrationMl = 1500;      // current hydration (also set on Log Hydration screen)
-int hydrationGoalMl = 3000;  // daily hydration goal
+// progress current values + goals for the status bars
+int hydrationMl = 1500;
+int hydrationGoalMl = 3000;
 
-int exerciseMin = 5;         // current exercise minutes
-int exerciseGoalMin = 30;    // daily exercise goal
+int exerciseMin = 5;
+int exerciseGoalMin = 30;
 
-float sleepHours = 7.2;      // last night's sleep
-float sleepGoalHours = 8.0;  // sleep goal
+float sleepHours = 7.2; // last night's sleep
+float sleepGoalHours = 8.0;
 
 void setup() {
-  size(312, 390); // Apple Watch Series 1 dimensions: 312 px * 390 px
+  size(312, 390); // Apple Watch Series 1 dimensions: 312px * 390 px
   minim = new Minim(this);
   listener = new Listen(this, "\\sample.config.xml");
 
@@ -57,11 +57,11 @@ void mouseReleased() {
   int diffX = mouseX - pressX;
   int diffY = mouseY - pressY;
 
-  if (diffX > (width / 2) && abs(diffX) > abs(diffY) ) { // swipe right
+  if (diffX > (width / 2) && abs(diffX) > abs(diffY) ) { // Swipe right
     manager.onSwipeRight();
     return;
   }
-  if (diffX < -(width / 2) && abs(diffX) > abs(diffY)) {  // swipe left
+  if (diffX < -(width / 2) && abs(diffX) > abs(diffY)) {  // Swipe left
     manager.currentScreen.onSwipeLeft();
     return;
   }
