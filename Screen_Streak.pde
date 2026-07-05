@@ -10,6 +10,12 @@ class Screen_Streak extends Screen {
 
   void draw() {
     image(streak_screen, 0, 0, width, height);
+    // Streak-Zahl auf Stern
+    fill(TEXT);
+    textAlign(CENTER, CENTER);
+    textSize(30);
+    text(veggieStreak, width * 0.23, height * 0.82);
+
     drawBackButton();
     drawPageDots(1, 2);
   };
