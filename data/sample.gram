@@ -2,4 +2,6 @@
 
 grammar sample;
 
-public <goal> = ( five | six | seven | eight | nine | ten | eleven | twelve | fifteen | twenty ) k;
+public <command> = <goal> | yes | no;
+
+<goal> = ( five | six | seven | eight | nine | ten | eleven | twelve | fifteen | twenty ) thousand;
