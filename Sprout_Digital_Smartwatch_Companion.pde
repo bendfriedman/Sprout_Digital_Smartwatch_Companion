@@ -21,8 +21,11 @@ int hydrationGoalMl = 3000;
 int exerciseMin = 5;
 int exerciseGoalMin = 30;
 
-float sleepHours = 7.2; // last night's sleep
+float sleepHours = 7.2;
 float sleepGoalHours = 8.0;
+
+int[] meatWeek = new int[7]; // 0=leer, 1=fleischfrei, 2=Fleisch
+int veggieStreak = 0; // in days
 
 void setup() {
   size(312, 390); // Apple Watch Series 1 dimensions: 312px * 390 px
@@ -72,8 +75,9 @@ void mouseReleased() {
 
 void listenEvent(Listen l) {
   String s = l.readString();
-  if (s != null  && manager.currentName.equals("goals")) {
-    println("heard: " + s); // erkanntes Wort in die Console
+  if (s == null) return;
+  if (manager.currentName.equals("goals") || manager.currentName.equals("logFood")) {
+    println("heard: " + s);
     manager.currentScreen.onSpeech(s);
   }
 }
