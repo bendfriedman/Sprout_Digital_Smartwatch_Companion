@@ -21,7 +21,7 @@ Functions covering all three required behaviour areas (the brief asks for a mini
 ### 🏃 Movement
 - **Set step goal by voice** — speak your target ("ten thousand") on the Goals screen; recognised offline and applied instantly.
 - **Workout logging** — log exercise from the log menu.
-- **Progress overview** — daily rings/bars for exercise, hydration, and sleep, with paged navigation to the streak view.
+- **Progress overview** — a step ring plus three live status bars (exercise, hydration, sleep), each filled from its current value against its goal; paged navigation to the streak view.
 
 ### 🥦 Nutrition coach
 - **Log meal** — quick meal/veggie check‑in feeding the meat‑free streak.
@@ -92,7 +92,7 @@ Adding a feature = one new `Screen` subclass + one `registerScreen(...)` line.
 - `Screen_Goals` — set the step goal by voice (mic + waveform + spoken prompt).
 - `Screen_LogMenu` — 2×2 menu to the individual loggers.
 - `Screen_LogExercise` / `Screen_LogFood` / `Screen_LogSleep` / `Screen_LogHydration` — individual logging screens.
-- `Screen_Progress` — daily progress overview with page dots.
+- `Screen_Progress` — daily progress overview: prepared step‑ring image on top, three code‑drawn status bars below (reusable `drawStatus()` helper), page dots.
 - `Screen_Streak` — the "Days without meat" streak with page dots.
 
 ---
@@ -101,7 +101,7 @@ Adding a feature = one new `Screen` subclass + one `registerScreen(...)` line.
 
 ```
 Sprout_Digital_Smartwatch_Companion/
-├── Sprout_Digital_Smartwatch_Companion.pde   # main tab: setup(), draw(), tap/swipe + listenEvent()
+├── Sprout_Digital_Smartwatch_Companion.pde   # main tab: setup(), draw(), tap/swipe + listenEvent(), global state (goals & current values)
 ├── Screen.pde                                # abstract screen base + shared UI helpers
 ├── ScreenManager.pde                         # screen state machine + navigation
 ├── Rect.pde                                  # x/y/w/h value type
@@ -125,7 +125,10 @@ Sprout_Digital_Smartwatch_Companion/
 
 ### Build status
 
-Core scaffold and navigation complete — screen state machine, theme constants, `Rect`/`Utils` helpers, the 2×2 hub, the companion watering animation, voice‑driven goal setting (CMUSphinx via SimpleSpeech), the log menu, and the progress/streak paging all working. The individual log screens are being filled in.
+Core scaffold and navigation complete — screen state machine, theme constants, `Rect`/`Utils` helpers, the 2×2 hub, the companion watering animation, voice‑driven goal setting (CMUSphinx via SimpleSpeech), the log menu, and the progress/streak paging all working.
+
+- **Done:** Hub, Sprout (watering + reaction), Goals (voice), Log menu, **Log Hydration** (± / preset targets), **Log Sleep** (shake‑to‑wake), and **Progress** — now with a step‑ring image and three code‑drawn status bars fed from live values/goals (`exerciseMin`, `hydrationMl`, `sleepHours` vs. their goals).
+- **In progress:** `Screen_LogExercise` and `Screen_LogFood` are still empty stubs; `Screen_Streak` currently shows a static placeholder image (the "days without meat" logic isn't wired yet).
 
 ---
 
