@@ -20,18 +20,18 @@ Functions covering all three required behaviour areas (the brief asks for a mini
 
 ### 🏃 Movement
 - **Set step goal by voice** — speak your target ("ten thousand") on the Goals screen; recognised offline and applied instantly.
-- **Workout logging** — log exercise from the log menu.
+- **Workout logging with live vital alert** — double‑tap to start/pause a running timer; a simulated heart rate rises during the workout and, once it crosses the limit, fires a repeating "take a break" alert (Sprout switches to its alert sprite). Pausing resets the pulse.
 - **Progress overview** — a step ring plus three live status bars (exercise, hydration, sleep), each filled from its current value against its goal; paged navigation to the streak view.
 
 ### 🥦 Nutrition coach
-- **Log meal** — quick meal/veggie check‑in feeding the meat‑free streak.
-- **Log hydration** — water tracking.
-- **"Days without meat" streak** — coaching loop that grows Sprout.
+- **Vegetarian check‑in by voice** — Sprout asks "Did you only eat vegetarian today?"; say "yes" (leaf) or "no" (red x). A weekly Mon–Sun row shows the history, and each vegetarian day grows the streak.
+- **Log hydration** — water tracking with ± and preset (1000/1500/2000 ml) buttons.
+- **"Days without meat" streak** — coaching loop that grows Sprout; the live count is shown on the streak screen's star.
 
 ### 🌟 Responsibility trainer
 - **Feed / water Sprout** — tap the watering can; Sprout reacts (sad → happy) with an animated rain effect and a water sound.
-- **Log sleep** — sleep check‑in.
-- **View streak** — Sprout's growth state and the meat‑free streak.
+- **Log sleep (shake‑to‑wake)** — "asleep" on entry; shake the wrist (rapid movement) to wake. Records sleep → wake times, with a moon/sun swap for the state.
+- **View streak** — Sprout's growth state and the live meat‑free streak count.
 
 Every action gives immediate **feedback** — button/water sounds, on‑screen reaction from Sprout, and (via FreeTTS) the option for Sprout to speak.
 
@@ -39,11 +39,12 @@ Every action gives immediate **feedback** — button/water sounds, on‑screen r
 
 ## Input modalities
 
-The app deliberately uses three input styles suited to a small touchscreen:
+The app deliberately uses four input styles suited to a small touchscreen:
 
 - **Touch** — hand‑built tiles and buttons with rectangle hit‑testing.
-- **Voice** — offline speech recognition (CMUSphinx) for setting the step goal, with a small fixed grammar.
-- **Swipe** — right‑swipe to go back to the hub, left‑swipe to page forward (e.g. Progress → Streak); a visible back/forward arrow mirrors each gesture for discoverability.
+- **Voice** — offline speech recognition (CMUSphinx) with a small fixed grammar: step goals on the Goals screen and yes/no for the vegetarian check‑in.
+- **Swipe** — right‑swipe to go back, left‑swipe to page forward (e.g. Progress → Streak); a visible back/forward arrow mirrors each gesture for discoverability.
+- **Gesture** — double‑tap to start/pause the workout timer; shake‑to‑wake on the sleep screen (both simulated with mouse input, since the desktop has no accelerometer).
 
 ---
 
@@ -91,9 +92,12 @@ Adding a feature = one new `Screen` subclass + one `registerScreen(...)` line.
 - `Screen_Sprout` — the companion; watering can + animated rain + Sprout reaction, water sound.
 - `Screen_Goals` — set the step goal by voice (mic + waveform + spoken prompt).
 - `Screen_LogMenu` — 2×2 menu to the individual loggers.
-- `Screen_LogExercise` / `Screen_LogFood` / `Screen_LogSleep` / `Screen_LogHydration` — individual logging screens.
+- `Screen_LogExercise` — workout: double‑tap timer + simulated heart rate with a repeating "take a break" vital alert.
+- `Screen_LogFood` — voice vegetarian check‑in (yes/no) with a weekly Mon–Sun leaf/x row that feeds the streak.
+- `Screen_LogSleep` — shake‑to‑wake, sleep/wake times, moon → sun.
+- `Screen_LogHydration` — water logging with ± and preset buttons.
 - `Screen_Progress` — daily progress overview: prepared step‑ring image on top, three code‑drawn status bars below (reusable `drawStatus()` helper), page dots.
-- `Screen_Streak` — the "Days without meat" streak with page dots.
+- `Screen_Streak` — the "Days without meat" streak; the live count is drawn on the star, with page dots.
 
 ---
 
@@ -118,17 +122,14 @@ Sprout_Digital_Smartwatch_Companion/
     ├── images/                               # icons + Sprout sprites (head, happy, sad, content, …)
     ├── sounds/                               # feedback & narration audio (incl. water‑bubbles.mp3)
     ├── sample.config.xml                     # CMUSphinx recogniser configuration
-    └── sample.gram                           # JSGF grammar (step‑goal phrases)
+    └── sample.gram                           # JSGF grammar (step‑goal phrases + yes/no)
 ```
 
 > In Processing, each `.pde` file is a separate tab and all tabs compile together as one sketch.
 
 ### Build status
 
-Core scaffold and navigation complete — screen state machine, theme constants, `Rect`/`Utils` helpers, the 2×2 hub, the companion watering animation, voice‑driven goal setting (CMUSphinx via SimpleSpeech), the log menu, and the progress/streak paging all working.
-
-- **Done:** Hub, Sprout (watering + reaction), Goals (voice), Log menu, **Log Hydration** (± / preset targets), **Log Sleep** (shake‑to‑wake), and **Progress** — now with a step‑ring image and three code‑drawn status bars fed from live values/goals (`exerciseMin`, `hydrationMl`, `sleepHours` vs. their goals).
-- **In progress:** `Screen_LogExercise` and `Screen_LogFood` are still empty stubs; `Screen_Streak` currently shows a static placeholder image (the "days without meat" logic isn't wired yet).
+**Complete.** All screens are implemented and wired: Hub, Sprout (watering + reaction), Goals (voice step goal), Log menu, Log Exercise (workout + vital alert), Log Food (voice vegetarian check‑in), Log Sleep (shake‑to‑wake), Log Hydration (± / presets), Progress (step ring + live status bars from `exerciseMin` / `hydrationMl` / `sleepHours` vs. goals), and Streak (live count on the star). Navigation (tap, swipe, back/forward arrows) and audio feedback are in place across the app.
 
 ---
 
@@ -137,10 +138,10 @@ Core scaffold and navigation complete — screen state machine, theme constants,
 Speech recognition runs **offline** through CMUSphinx (wrapped by SimpleSpeech):
 
 1. Install the **SimpleSpeech** library into your Processing `libraries/` folder (alongside `minim`).
-2. `data/sample.gram` holds the JSGF grammar — a small fixed vocabulary of step‑goal phrases (`five … twenty` + `thousand`). Small vocabularies are far more reliable with Sphinx.
+2. `data/sample.gram` holds the JSGF grammar — a small fixed vocabulary: step‑goal phrases (`five … twenty` + `thousand`) plus `yes` / `no` for the vegetarian check‑in. Small vocabularies are far more reliable with Sphinx.
 3. `data/sample.config.xml` configures the recogniser. **Its `grammarLocation` must point (absolute `file:///` path) at this sketch's `data` folder** — the most common setup pitfall.
 
-On the Goals screen, say e.g. *"ten thousand"*; recognised words print to the console (`heard: …`) and set the step goal.
+Recognition is gated to the two voice screens: on **Goals** say e.g. *"ten thousand"* to set the step goal; on **Log Food** say *"yes"* / *"no"* for the vegetarian check‑in. Recognised words print to the console (`heard: …`).
 
 ---
 
