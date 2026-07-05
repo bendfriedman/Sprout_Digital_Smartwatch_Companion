@@ -6,6 +6,12 @@ import ddf.minim.spi.*;
 import ddf.minim.ugens.*;
 import simpleSpeech.*;
 
+/*
+ * Sprout – Digital Smartwatch Companion
+ * HCI-Projekt
+ * Benjamin Friedman, Matrikelnummer: 106751
+ */
+
 
 ScreenManager manager;
 Minim minim;
