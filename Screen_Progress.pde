@@ -1,19 +1,19 @@
 class Screen_Progress extends Screen {
 
-  PImage steps_img;        // top half: title + step ring (prepared image)
+  PImage steps_img;
   PImage exercise_icon;
   PImage hydration_icon;
   PImage sleep_icon;
 
   Rect forwardBox;
-  Rect stepsBox;           // area the top image is fitted into
+  Rect stepsBox;
 
   // status bar colors
-  final color EX_FILL   = #FF9F0A;   // orange
-  final color EX_BORDER = DANGER;    // red
-  final color HY_FILL   = #1E88E5;   // blue
-  final color SL_FILL   = #7C1FE0;   // purple
-  final color TRACK     = #9E9E9E;   // gray track/border
+  final color EX_FILL   = #FF9F0A;
+  final color EX_BORDER = DANGER;
+  final color HY_FILL   = #1E88E5;
+  final color SL_FILL   = #7C1FE0;
+  final color TRACK     = #9E9E9E;
 
   Screen_Progress() {
     steps_img      = loadImage("images/progress_steps.jpg");
@@ -28,13 +28,12 @@ class Screen_Progress extends Screen {
   }
 
   void draw() {
-    // top: prepared image with title + step ring
     drawFitted(steps_img, stepsBox);
 
-    // three status bars (current value / goal)
-    drawStatus(exercise_icon,  "Exercise",  (float) exerciseMin / exerciseGoalMin, EX_FILL, EX_BORDER, 208);
-    drawStatus(hydration_icon, "Hydration", (float) hydrationMl / hydrationGoalMl, HY_FILL, TRACK,     266);
-    drawStatus(sleep_icon,     "Sleep",     sleepHours / sleepGoalHours,           SL_FILL, TRACK,     324);
+    // three status bars
+    drawStatus(exercise_icon, "Exercise", (float) exerciseMin / exerciseGoalMin, EX_FILL, EX_BORDER, 208);
+    drawStatus(hydration_icon, "Hydration", (float) hydrationMl / hydrationGoalMl, HY_FILL, TRACK, 266);
+    drawStatus(sleep_icon, "Sleep", sleepHours / sleepGoalHours, SL_FILL, TRACK, 324);
 
     drawBackButton();
     drawForwardArrow();
@@ -43,18 +42,18 @@ class Screen_Progress extends Screen {
 
   // one row: icon | label above a rounded progress bar
   void drawStatus(PImage icon, String label, float frac, color fillClr, color borderClr, float rowY) {
-    float pad   = SCREEN_PADDING;
+    float pad = SCREEN_PADDING;
     float iconW = 30, iconH = 42;
-    float gap   = 8;
+    float gap = 8;
 
     drawFitted(icon, new Rect(pad, rowY, iconW, iconH));
 
     float barX = pad + iconW + gap;
     float barW = width - barX - pad;
     float barH = 20;
-    float barY = rowY + iconH - barH;   // bar sits at the bottom of the row
+    float barY = rowY + iconH - barH; // bar sits at bottom of the row
 
-    // label above the bar
+    // label above the progressbar
     fill(TEXT);
     textAlign(LEFT, BOTTOM);
     textSize(16);
@@ -62,13 +61,13 @@ class Screen_Progress extends Screen {
 
     frac = constrain(frac, 0, 1);
 
-    // track / border
+    // border
     noFill();
     stroke(borderClr);
     strokeWeight(3);
     rect(barX, barY, barW, barH, barH/2);
 
-    // fill (inset so it sits inside the border)
+    // fill -> inset so it sits inside the border
     if (frac > 0) {
       noStroke();
       fill(fillClr);
