@@ -9,8 +9,6 @@ class Screen_Hub extends Screen {
   final int iconPadding = 12;
 
   float tileW, tileH;
-  float[] tileX = new float[4];
-  float[] tileY = new float[4];
   Rect[] tiles = new Rect[4];
 
   Screen_Hub() {
